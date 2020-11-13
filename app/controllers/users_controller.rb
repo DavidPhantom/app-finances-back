@@ -22,12 +22,20 @@ class UsersController < ApplicationController
   end
 
   def edit
-    serialize(@user, :ok)
+    if is_current_user?
+      serialize(@user, :ok)
+    else
+      redirect_to current_user
+    end
   end
 
   def update
-    @user.update!(user_params)
-    serialize(@user, :ok)
+    if is_current_user?
+      @user.update!(user_params)
+      serialize(@user, :ok)
+    else
+      render 'new'
+    end
   end
 
   private
@@ -38,6 +46,10 @@ class UsersController < ApplicationController
 
   def all_users
     @users ||= User.all
+  end
+
+  def is_current_user?
+    current_user == @user
   end
 
   def serialize(user, status)
